@@ -34,4 +34,3 @@ if __name__ == "__main__":
     print("Boman:", boman)
     print("Hydrophobic Moment:", hydrophobic_moment)
     print("Mass-to-Charge Ratio:", mass_to_charge_ratio)
-

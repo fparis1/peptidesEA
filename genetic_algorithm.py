@@ -6,7 +6,7 @@ import numpy as np
 class GeneticAlgorithm:
     class Solution:
         def __init__(self, sequence, molecular_weight, isoelectric_point, hydrophobicity,
-                     charge, aliphatic_index, instability_index, boman, hydrophobic_moment, mass_to_charge_ratio):
+                     charge, aliphatic_index, instability_index, boman, hydrophobic_moment):
             self.sequence = sequence
             self.molecular_weight = molecular_weight
             self.isoelectric_point = isoelectric_point
@@ -16,11 +16,10 @@ class GeneticAlgorithm:
             self.instability_index = instability_index
             self.boman = boman
             self.hydrophobic_moment = hydrophobic_moment
-            self.mass_to_charge_ratio = mass_to_charge_ratio
 
     def __init__(self, target_molecular_weight, target_isoelectric_point, target_hydrophobicity,
                  target_charge, target_aliphatic_index, target_instability_index,
-                 target_boman, target_hydrophobic_moment, target_mass_to_charge_ratio,
+                 target_boman, target_hydrophobic_moment,
                  population_size, offspring_size, num_generations, mutation_probability):
         self.target_molecular_weight = target_molecular_weight
         self.target_isoelectric_point = target_isoelectric_point
@@ -30,7 +29,6 @@ class GeneticAlgorithm:
         self.target_instability_index = target_instability_index
         self.target_boman = target_boman
         self.target_hydrophobic_moment = target_hydrophobic_moment
-        self.target_mass_to_charge_ratio = target_mass_to_charge_ratio
         self.population_size = population_size
         self.offspring_size = offspring_size
         self.num_generations = num_generations
@@ -41,25 +39,36 @@ class GeneticAlgorithm:
         p_i_diff = abs(peptide.isoelectric_point() - self.target_isoelectric_point)
         hydrophobicity = peptide.hydrophobicity(scale="Eisenberg")
         hydro_diff = abs(hydrophobicity - self.target_hydrophobicity)
-
-        # Adjusting fitness based on hydrophobicity difference
-        if hydro_diff <= 0.5:
-            hydro_fitness = 0
-        else:
-            hydro_fitness = 1000 * hydro_diff
-
         charge_diff = abs(peptide.charge(pH=7.0, pKscale="EMBOSS") - self.target_charge)
-        aliphatic_index_diff = abs(peptide.aliphatic_index() - self.target_aliphatic_index)
+        aliphatic_index_diff = abs(self.target_aliphatic_index - peptide.aliphatic_index())
         instability_index_diff = abs(peptide.instability_index() - self.target_instability_index)
         boman_diff = abs(peptide.boman() - self.target_boman)
         hydrophobic_moment_diff = abs(peptide.hydrophobic_moment() - self.target_hydrophobic_moment)
-        mass_to_charge_ratio_diff = abs(peptide.mz() - self.target_mass_to_charge_ratio)
 
-        # Assigning more weight to hydrophobicity, hydrophobic moment, charge, and Boman
-        fitness = (10 * mw_diff + 100 * p_i_diff + hydro_fitness + 50 * charge_diff +
-                   50 * aliphatic_index_diff + 50 * instability_index_diff +
-                   200 * boman_diff + 200 * hydrophobic_moment_diff +
-                   10 * mass_to_charge_ratio_diff)
+        # Weights for each property
+        weight_mw = 10
+        weight_pi = 100
+        weight_hydro = 1000 if hydro_diff > 0.5 else 0
+        weight_charge = 50
+        weight_aliphatic = 50
+        weight_instability = 50
+        weight_boman = 200
+        weight_hydrophobic_moment = 200
+
+        # Properties to use MAE
+        mae_fitness = (weight_mw * mw_diff +
+                       weight_hydro * hydro_diff +
+                       weight_aliphatic * aliphatic_index_diff +
+                       weight_instability * instability_index_diff)
+
+        # Properties to use MSE
+        mse_fitness = (weight_pi * (p_i_diff ** 2) +
+                       weight_charge * (charge_diff ** 2) +
+                       weight_boman * (boman_diff ** 2) +
+                       weight_hydrophobic_moment * (hydrophobic_moment_diff ** 2))
+
+        # Combining MAE and MSE components
+        fitness = mae_fitness + mse_fitness
 
         return fitness
 
@@ -75,7 +84,7 @@ class GeneticAlgorithm:
             solution = self.Solution(peptide.sequence, peptide.molecular_weight(), peptide.isoelectric_point(),
                                      peptide.hydrophobicity(), peptide.charge(pH=7.0, pKscale="EMBOSS"),
                                      peptide.aliphatic_index(), peptide.instability_index(),
-                                     peptide.boman(), peptide.hydrophobic_moment(), peptide.mz())
+                                     peptide.boman(), peptide.hydrophobic_moment())
             population.append((solution, fitness))
 
         return population
@@ -119,8 +128,7 @@ class GeneticAlgorithm:
             offspring.append((self.Solution(child.sequence, child.molecular_weight(), child.isoelectric_point(),
                                             child.hydrophobicity(), abs(child.charge(pH=7.0, pKscale="EMBOSS")),
                                             abs(child.aliphatic_index()), abs(child.instability_index()),
-                                            abs(child.boman()), abs(child.hydrophobic_moment()), abs(child.mz())),
-                              fitness))
+                                            abs(child.boman()), abs(child.hydrophobic_moment())), fitness))
 
         return offspring
 
@@ -146,4 +154,4 @@ class GeneticAlgorithm:
         return (population[0][0].sequence, population[0][0].molecular_weight, population[0][0].isoelectric_point,
                 population[0][0].hydrophobicity, population[0][0].charge, population[0][0].aliphatic_index,
                 population[0][0].instability_index, population[0][0].boman,
-                population[0][0].hydrophobic_moment, population[0][0].mass_to_charge_ratio)
+                population[0][0].hydrophobic_moment)

@@ -98,7 +98,13 @@ class GeneticAlgorithm:
     def mutate(self, peptide):
         mutated_sequence = list(peptide.sequence)
         mutation_point = random.randint(0, len(mutated_sequence) - 1)
-        mutated_sequence[mutation_point] = random.choice("ACDEFGHIKLMNPQRSTVWY")
+        original_amino_acid = mutated_sequence[mutation_point]
+
+        new_amino_acid = original_amino_acid
+        while new_amino_acid == original_amino_acid:
+            new_amino_acid = random.choice("ACDEFGHIKLMNPQRSTVWY")
+
+        mutated_sequence[mutation_point] = new_amino_acid
         return Peptide(sequence="".join(mutated_sequence))
 
     def selection(self, population):

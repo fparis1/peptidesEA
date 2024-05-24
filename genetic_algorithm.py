@@ -96,16 +96,19 @@ class GeneticAlgorithm:
         return Peptide(sequence=child_sequence)
 
     def mutate(self, peptide):
-        mutated_sequence = list(peptide.sequence)
-        mutation_point = random.randint(0, len(mutated_sequence) - 1)
-        original_amino_acid = mutated_sequence[mutation_point]
+        if self.mutation_probability <= np.random.rand():
+            mutated_sequence = list(peptide.sequence)
+            mutation_point = random.randint(0, len(mutated_sequence) - 1)
+            original_amino_acid = mutated_sequence[mutation_point]
 
-        new_amino_acid = original_amino_acid
-        while new_amino_acid == original_amino_acid:
-            new_amino_acid = random.choice("ACDEFGHIKLMNPQRSTVWY")
+            new_amino_acid = original_amino_acid
+            while new_amino_acid == original_amino_acid:
+                new_amino_acid = random.choice("ACDEFGHIKLMNPQRSTVWY")
 
-        mutated_sequence[mutation_point] = new_amino_acid
-        return Peptide(sequence="".join(mutated_sequence))
+            mutated_sequence[mutation_point] = new_amino_acid
+            return Peptide(sequence="".join(mutated_sequence))
+        else:
+            return peptide
 
     def selection(self, population):
         fitness_scores = [1 / (solution[1] + 1) for solution in population]

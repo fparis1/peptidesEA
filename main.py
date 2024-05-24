@@ -12,9 +12,9 @@ if __name__ == "__main__":
     target_hydrophobic_moment = 0.6  # Hydrophobic moment around 0.6
 
     # Parameters for the genetic algorithm
-    population_size = 100
-    offspring_size = 100
-    num_generations = 100
+    population_size = 50
+    offspring_size = 30
+    num_generations = 500
     mutation_probability = 0.1
 
     # Initialize the genetic algorithm with the target values

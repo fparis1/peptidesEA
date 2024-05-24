@@ -48,7 +48,7 @@ class GeneticAlgorithm:
         # Weights for each property
         weight_mw = 10
         weight_pi = 100
-        weight_hydro = 1000 if hydro_diff > 0.5 else 0
+        weight_hydro = 1000 if hydro_diff < 0.5 else 0
         weight_charge = 50
         weight_aliphatic = 50
         weight_instability = 50

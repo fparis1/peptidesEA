@@ -135,9 +135,9 @@ class GeneticAlgorithm:
 
             fitness = self.calculate_fitness(child)
             offspring.append((self.Solution(child.sequence, child.molecular_weight(), child.isoelectric_point(),
-                                            child.hydrophobicity(), abs(child.charge(pH=7.0, pKscale="EMBOSS")),
-                                            abs(child.aliphatic_index()), abs(child.instability_index()),
-                                            abs(child.boman()), abs(child.hydrophobic_moment())), fitness))
+                                            child.hydrophobicity(), child.charge(pH=7.0, pKscale="EMBOSS"),
+                                            child.aliphatic_index(), child.instability_index(),
+                                            child.boman(), child.hydrophobic_moment()), fitness))
 
         return offspring
 

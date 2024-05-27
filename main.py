@@ -2,14 +2,14 @@ from genetic_algorithm import GeneticAlgorithm
 
 if __name__ == "__main__":
     # Define the target values
-    target_molecular_weight = 3000  # Target molecular weight (around 3 kDa)
-    target_isoelectric_point = 9.5  # High isoelectric point
-    target_hydrophobicity = 0.4  # Moderate hydrophobicity
-    target_charge = 5  # Positive net charge
-    target_aliphatic_index = 90  # High aliphatic index
-    target_instability_index = 40  # Low instability index
-    target_boman = 1.0  # Boman index around 1.0
-    target_hydrophobic_moment = 0.6  # Hydrophobic moment around 0.6
+    target_molecular_weight = 3000
+    target_isoelectric_point = 9.5
+    target_hydrophobicity = 0.4
+    target_charge = 5
+    target_aliphatic_index = 90
+    target_instability_index = 40
+    target_boman = 1.0
+    target_hydrophobic_moment = 0.6
 
     # Parameters for the genetic algorithm
     population_size = 50

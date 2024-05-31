@@ -14,8 +14,8 @@ if __name__ == "__main__":
     # Parameters for the genetic algorithm
     population_size = 50
     offspring_size = 30
-    num_generations = 500
-    mutation_probability = 0.1
+    num_generations = 300
+    mutation_probability = 0.15
 
     # Initialize the genetic algorithm with the target values
     genetic_algorithm = GeneticAlgorithm(target_molecular_weight, target_isoelectric_point, target_hydrophobicity,
@@ -38,3 +38,5 @@ if __name__ == "__main__":
     print("Instability Index:", instability_index)
     print("Boman:", boman)
     print("Hydrophobic Moment:", hydrophobic_moment)
+
+    genetic_algorithm.plot_scores()

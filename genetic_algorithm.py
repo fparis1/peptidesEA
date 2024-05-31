@@ -1,6 +1,8 @@
 import random
-from peptides import Peptide
+
+import matplotlib.pyplot as plt
 import numpy as np
+from peptides import Peptide
 
 
 class GeneticAlgorithm:
@@ -33,6 +35,7 @@ class GeneticAlgorithm:
         self.offspring_size = offspring_size
         self.num_generations = num_generations
         self.mutation_probability = mutation_probability
+        self.best_scores = []
 
     def calculate_fitness(self, peptide):
         mw_diff = abs(peptide.molecular_weight() - self.target_molecular_weight)
@@ -98,14 +101,34 @@ class GeneticAlgorithm:
     def mutate(self, peptide):
         if self.mutation_probability <= np.random.rand():
             mutated_sequence = list(peptide.sequence)
-            mutation_point = random.randint(0, len(mutated_sequence) - 1)
-            original_amino_acid = mutated_sequence[mutation_point]
+            mutation_type = np.random.choice(['substitution', 'addition', 'deletion', 'swap'])
 
-            new_amino_acid = original_amino_acid
-            while new_amino_acid == original_amino_acid:
+            if mutation_type == 'substitution':
+                mutation_point = random.randint(0, len(mutated_sequence) - 1)
+                original_amino_acid = mutated_sequence[mutation_point]
+
+                new_amino_acid = original_amino_acid
+                while new_amino_acid == original_amino_acid:
+                    new_amino_acid = random.choice("ACDEFGHIKLMNPQRSTVWY")
+
+                mutated_sequence[mutation_point] = new_amino_acid
+
+            elif mutation_type == 'addition':
+                addition_point = random.randint(0, len(mutated_sequence))
                 new_amino_acid = random.choice("ACDEFGHIKLMNPQRSTVWY")
+                mutated_sequence.insert(addition_point, new_amino_acid)
 
-            mutated_sequence[mutation_point] = new_amino_acid
+            elif mutation_type == 'deletion':
+                deletion_point = random.randint(0, len(mutated_sequence) - 1)
+                del mutated_sequence[deletion_point]
+
+            elif mutation_type == 'swap':
+                swap_points = random.sample(range(len(mutated_sequence)), 2)
+                while mutated_sequence[swap_points[0]] == mutated_sequence[swap_points[1]]:
+                    swap_points = random.sample(range(len(mutated_sequence)), 2)
+                mutated_sequence[swap_points[0]], mutated_sequence[swap_points[1]] = mutated_sequence[
+                    swap_points[1]], mutated_sequence[swap_points[0]]
+
             return Peptide(sequence="".join(mutated_sequence))
         else:
             return peptide
@@ -154,6 +177,8 @@ class GeneticAlgorithm:
             population = self.next_generation(population, offspring)
 
             best_solution = population[0][0]
+            best_fitness = population[0][1]
+            self.best_scores.append(best_fitness)
             print("Generation:", generation + 1, "/", self.num_generations)
 
             if population[0][1] == 0:
@@ -164,3 +189,13 @@ class GeneticAlgorithm:
                 population[0][0].hydrophobicity, population[0][0].charge, population[0][0].aliphatic_index,
                 population[0][0].instability_index, population[0][0].boman,
                 population[0][0].hydrophobic_moment)
+
+    def plot_scores(self):
+        plt.plot(self.best_scores, label='Best Fitness Score')
+        plt.scatter(len(self.best_scores) - 1, self.best_scores[-1], color='red',
+                    label=f'Last Score: {self.best_scores[-1]:.2f}')
+        plt.xlabel('Generation')
+        plt.ylabel('Best Fitness Score')
+        plt.title('Best Fitness Score Through Generations')
+        plt.legend()
+        plt.show()

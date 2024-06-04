@@ -176,7 +176,6 @@ class GeneticAlgorithm:
             offspring = self.generate_offspring(population)
             population = self.next_generation(population, offspring)
 
-            best_solution = population[0][0]
             best_fitness = population[0][1]
             self.best_scores.append(best_fitness)
             print("Generation:", generation + 1, "/", self.num_generations)

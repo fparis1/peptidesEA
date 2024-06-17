@@ -1,3 +1,4 @@
+import math
 import random
 
 import matplotlib.pyplot as plt
@@ -291,8 +292,11 @@ class GeneticAlgorithm:
         ax.tick_params(axis='x', pad=20)  # Adjust the padding between labels and plot
 
         # Add value annotations on one specified axis
+
+        start, num = self.calculate_axis_crossing_points(normalized_target_values, normalized_final_values)
+
         specified_axis = 0  # Index of the specified axis (e.g., 0 for 'Molecular Weight')
-        for grid_value in np.linspace(0.2, 0.8, 4):  # Values at 0.2, 0.4, 0.6, 0.8, and 1.0
+        for grid_value in np.linspace(start, 0.8, num):  # Values at 0.0, 0.2, 0.4, 0.6, 0.8, and 1.0
             ax.text(angles[specified_axis], grid_value, f'{grid_value:.1f}',
                     horizontalalignment='center', verticalalignment='center', fontsize=10, color='black',
                     bbox=dict(facecolor='white', edgecolor='none', pad=0.2))
@@ -305,3 +309,31 @@ class GeneticAlgorithm:
 
         # Show the plot
         plt.show()
+
+    def calculate_axis_crossing_points(self, normalized_target_values, normalizes_final_values):
+
+        min_value = min(min(normalized_target_values), min(normalizes_final_values))
+
+        # Step 1: Scale the min_value by 10
+        scaled_value = min_value * 10
+
+        # Step 2: Floor the scaled value
+        floored_value = math.floor(scaled_value)
+
+        # Step 3: Adjust to the nearest even number if needed
+        if floored_value % 2 != 0:
+            floored_value -= 1
+
+        # Step 4: Scale back to the original decimal place
+        start_value = floored_value / 10.0
+
+        step_size = 0.2
+        target_value = 1.0
+
+        # Calculate the difference
+        difference = target_value - start_value
+
+        # Calculate the number of steps
+        steps = difference / step_size
+
+        return start_value, int(steps) + 1

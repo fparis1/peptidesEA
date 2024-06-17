@@ -3,6 +3,9 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from peptides import Peptide
+import plotly.express as px
+import pandas as pd
+from math import pi
 
 
 class GeneticAlgorithm:
@@ -36,6 +39,7 @@ class GeneticAlgorithm:
         self.num_generations = num_generations
         self.mutation_probability = mutation_probability
         self.best_scores = []
+        self.worst_scores = []
 
     def calculate_fitness(self, peptide):
         mw_diff = abs(peptide.molecular_weight() - self.target_molecular_weight)
@@ -177,7 +181,9 @@ class GeneticAlgorithm:
             population = self.next_generation(population, offspring)
 
             best_fitness = population[0][1]
+            worst_fitness = population[-1][1]
             self.best_scores.append(best_fitness)
+            self.worst_scores.append(worst_fitness)
             print("Generation:", generation + 1, "/", self.num_generations)
 
             if population[0][1] == 0:
@@ -190,11 +196,112 @@ class GeneticAlgorithm:
                 population[0][0].hydrophobic_moment)
 
     def plot_scores(self):
-        plt.plot(self.best_scores, label='Best Fitness Score')
-        plt.scatter(len(self.best_scores) - 1, self.best_scores[-1], color='red',
-                    label=f'Last Score: {self.best_scores[-1]:.2f}')
-        plt.xlabel('Generation')
-        plt.ylabel('Best Fitness Score')
-        plt.title('Best Fitness Score Through Generations')
-        plt.legend()
+        # fig, ax1 = plt.subplots()
+        #
+        # # Plotting best fitness scores
+        # color = 'tab:blue'
+        # ax1.set_xlabel('Generation')
+        # ax1.set_ylabel('Best Fitness Score', color=color)
+        # ln1 = ax1.plot(self.best_scores, label='Best Fitness Score', color=color)
+        #
+        # # Plotting worst fitness scores
+        # ax2 = ax1.twinx()
+        # color = 'tab:red'
+        # ax2.set_ylabel('Worst Fitness Score', color=color)
+        # ln2 = ax2.plot(self.worst_scores, label='Worst Fitness Score', color=color)
+        #
+        # # Adding a single scatter plot for the last scores
+        # last_gen = len(self.best_scores) - 1
+        # ln3 = ax1.scatter(last_gen, self.best_scores[-1], color='purple',
+        #                   label=f'Last Best Score: {self.best_scores[-1]:.2f}\nLast Worst Score: {self.worst_scores[-1]:.2f}')
+        # ax2.scatter(last_gen, self.worst_scores[-1],
+        #             color='purple')
+        #
+        # # Combining all legends into one
+        # lns = ln1 + ln2 + [ln3]
+        # labels = [l.get_label() for l in lns]
+        # ax1.legend(lns, labels, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2)
+        #
+        # fig.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust layout to leave space for the title
+        # fig.suptitle('Fitness Scores Through Generations', y=0.98)
+        #
+        # plt.show()
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+        # Plot for Best Fitness Score
+        axes[0].plot(self.best_scores, label='Best Fitness Score', color='blue')
+        axes[0].scatter(len(self.best_scores) - 1, self.best_scores[-1], color='blue',
+                        label=f'Last Score: {self.best_scores[-1]:.2f}')
+        axes[0].set_xlabel('Generation')
+        axes[0].set_ylabel('Best Fitness Score')
+        axes[0].set_title('Best Fitness Score Through Generations')
+        axes[0].legend()
+
+        # Plot for Worst Fitness Score
+        axes[1].plot(self.worst_scores, label='Worst Fitness Score', color='red')
+        axes[1].scatter(len(self.worst_scores) - 1, self.worst_scores[-1], color='red',
+                        label=f'Last Score: {self.worst_scores[-1]:.2f}')
+        axes[1].set_xlabel('Generation')
+        axes[1].set_ylabel('Worst Fitness Score')
+        axes[1].set_title('Worst Fitness Score Through Generations')
+        axes[1].legend()
+
+        plt.tight_layout()
+        plt.show()
+
+    def normalize_values(self, values):
+        max_value = max(values)
+        min_value = min(values)
+        normalized_values = [(v - min_value) / (max_value - min_value) for v in values]
+        return normalized_values
+
+    def create_radar_chart(self, target_values, final_values):
+
+        # Labels and data
+        labels = ['Molecular\nWeight', 'Isoelectric\nPoint', 'Hydrophobicity', 'Charge',
+                  'Aliphatic\nIndex', 'Instability\nIndex', 'Boman', 'Hydrophobic\nMoment']
+
+        # Normalize the data
+        max_values = [max(tv, fv) for tv, fv in zip(target_values, final_values)]
+        normalized_target_values = [tv / mv for tv, mv in zip(target_values, max_values)]
+        normalized_final_values = [fv / mv for fv, mv in zip(final_values, max_values)]
+
+        # Compute the angle of each axis
+        num_vars = len(labels)
+        angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+
+        # Complete the loop for the plot
+        normalized_target_values += normalized_target_values[:1]
+        normalized_final_values += normalized_final_values[:1]
+        angles += angles[:1]
+
+        # Plot
+        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+
+        ax.plot(angles, normalized_target_values, color='blue', linewidth=2, label='Target Values')
+        ax.plot(angles, normalized_final_values, color='red', linewidth=2, label='Final Values')
+
+        # Add labels to the plot
+        ax.set_yticklabels([])
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(labels)
+
+        # Increase radial distance of the labels
+        ax.tick_params(axis='x', pad=20)  # Adjust the padding between labels and plot
+
+        # Add value annotations on one specified axis
+        specified_axis = 0  # Index of the specified axis (e.g., 0 for 'Molecular Weight')
+        for grid_value in np.linspace(0.2, 0.8, 4):  # Values at 0.2, 0.4, 0.6, 0.8, and 1.0
+            ax.text(angles[specified_axis], grid_value, f'{grid_value:.1f}',
+                    horizontalalignment='center', verticalalignment='center', fontsize=10, color='black',
+                    bbox=dict(facecolor='white', edgecolor='none', pad=0.2))
+
+        # Customize gridlines
+        ax.grid(color='gray', linestyle='-', linewidth=0.5)
+
+        # Customize the legend
+        plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1))
+
+        # Show the plot
         plt.show()

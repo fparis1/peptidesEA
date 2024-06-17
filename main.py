@@ -40,3 +40,11 @@ if __name__ == "__main__":
     print("Hydrophobic Moment:", hydrophobic_moment)
 
     genetic_algorithm.plot_scores()
+
+    # Generate radar chart comparing initial targets and final values
+    final_values = [molecular_weight, isoelectric_point, hydrophobicity, charge, aliphatic_index,
+                    instability_index, boman, hydrophobic_moment]
+    target_values = [target_molecular_weight, target_isoelectric_point, target_hydrophobicity, target_charge,
+                     target_aliphatic_index, target_instability_index, target_boman, target_hydrophobic_moment]
+
+    genetic_algorithm.create_radar_chart(target_values, final_values)

@@ -1,12 +1,8 @@
-import math
 import random
 
 import matplotlib.pyplot as plt
 import numpy as np
 from peptides import Peptide
-import plotly.express as px
-import pandas as pd
-from math import pi
 
 
 class GeneticAlgorithm:
@@ -104,7 +100,7 @@ class GeneticAlgorithm:
         return Peptide(sequence=child_sequence)
 
     def mutate(self, peptide):
-        if self.mutation_probability <= np.random.rand():
+        if np.random.rand() <= self.mutation_probability:
             mutated_sequence = list(peptide.sequence)
             mutation_type = np.random.choice(['substitution', 'addition', 'deletion', 'swap'])
 

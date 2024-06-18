@@ -151,10 +151,6 @@ class GeneticAlgorithm:
             parent1 = self.tournament_selection(population)
             parent2 = self.tournament_selection(population)
 
-            # Ensure parent2 is not the same as parent1
-            while parent2 == parent1:
-                parent2 = self.tournament_selection(population)
-
             child = self.crossover(parent1, parent2)
             child = self.mutate(child)
 

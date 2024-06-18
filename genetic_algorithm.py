@@ -22,7 +22,7 @@ class GeneticAlgorithm:
     def __init__(self, target_molecular_weight, target_isoelectric_point, target_hydrophobicity,
                  target_charge, target_aliphatic_index, target_instability_index,
                  target_boman, target_hydrophobic_moment,
-                 population_size, offspring_size, num_generations, mutation_probability):
+                 population_size, offspring_size, num_generations, mutation_probability, tournament_size):
         self.target_molecular_weight = target_molecular_weight
         self.target_isoelectric_point = target_isoelectric_point
         self.target_hydrophobicity = target_hydrophobicity
@@ -35,6 +35,7 @@ class GeneticAlgorithm:
         self.offspring_size = offspring_size
         self.num_generations = num_generations
         self.mutation_probability = mutation_probability
+        self.tournament_size = tournament_size
         self.best_scores = []
         self.worst_scores = []
 
@@ -134,25 +135,25 @@ class GeneticAlgorithm:
         else:
             return peptide
 
-    def selection(self, population):
-        fitness_scores = [1 / (solution[1] + 1) for solution in population]
+    def tournament_selection(self, population):
+        # Randomly select tournament_size individuals from the population
+        tournament = random.sample(population, self.tournament_size)
 
-        # Create a roulette wheel.
-        roulette_wheel = np.cumsum(
-            fitness_scores / np.sum(fitness_scores)
-        )
+        # Select the best individual from the tournament
+        best_individual = min(tournament, key=lambda solution: solution[1])
 
-        random_number = np.random.rand()
-        for index, score in enumerate(roulette_wheel):
-            if random_number <= score:
-                return population[index][0]
+        return best_individual[0]
 
     def generate_offspring(self, population):
         offspring = []
 
         for _ in range(self.offspring_size):
-            parent1 = self.selection(population)
-            parent2 = self.selection(population)
+            parent1 = self.tournament_selection(population)
+            parent2 = self.tournament_selection(population)
+
+            # Ensure parent2 is not the same as parent1
+            while parent2 == parent1:
+                parent2 = self.tournament_selection(population)
 
             child = self.crossover(parent1, parent2)
             child = self.mutate(child)
@@ -336,11 +337,6 @@ class GeneticAlgorithm:
         steps = difference / step_size
 
         if start_value < -0.4:
-            if int(steps) % 2 == 0:
-                steps /= 2
-                steps += 1
-            else:
-                steps /= 2
-                # steps += 1
+            steps = 5
 
         return start_value, int(steps) + 1

@@ -70,16 +70,18 @@ if __name__ == "__main__":
         exit(1)
 
     # Parameters for the genetic algorithm
-    population_size = 50
-    offspring_size = 30
+    population_size = 80
+    offspring_size = 50
     num_generations = 300
-    mutation_probability = 0.1
+    mutation_probability = 0.3
+    tournament_size = 3
 
     # Initialize the genetic algorithm with the target values
     genetic_algorithm = GeneticAlgorithm(target_molecular_weight, target_isoelectric_point, target_hydrophobicity,
                                          target_charge, target_aliphatic_index, target_instability_index,
                                          target_boman, target_hydrophobic_moment,
-                                         population_size, offspring_size, num_generations, mutation_probability)
+                                         population_size, offspring_size, num_generations, mutation_probability,
+                                         tournament_size)
 
     # Run the optimization
     best_sequence, molecular_weight, isoelectric_point, hydrophobicity, charge, aliphatic_index, instability_index, \

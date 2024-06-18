@@ -314,11 +314,14 @@ class GeneticAlgorithm:
 
         min_value = min(min(normalized_target_values), min(normalizes_final_values))
 
+        if min_value >= 0.0:
+            return 0.0, 5
+
         # Step 1: Scale the min_value by 10
         scaled_value = min_value * 10
 
         # Step 2: Floor the scaled value
-        floored_value = math.floor(scaled_value)
+        floored_value = round(scaled_value)
 
         # Step 3: Adjust to the nearest even number if needed
         if floored_value % 2 != 0:
@@ -335,5 +338,13 @@ class GeneticAlgorithm:
 
         # Calculate the number of steps
         steps = difference / step_size
+
+        if start_value < -0.4:
+            if int(steps) % 2 == 0:
+                steps /= 2
+                steps += 1
+            else:
+                steps /= 2
+                # steps += 1
 
         return start_value, int(steps) + 1

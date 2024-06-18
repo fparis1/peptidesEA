@@ -1,6 +1,8 @@
 import random
 import numpy as np
 from peptides import Peptide
+
+import graph_visualization
 from genetic_algorithm import GeneticAlgorithm
 
 
@@ -85,7 +87,7 @@ if __name__ == "__main__":
 
     # Run the optimization
     best_sequence, molecular_weight, isoelectric_point, hydrophobicity, charge, aliphatic_index, instability_index, \
-        boman, hydrophobic_moment = genetic_algorithm.optimize()
+        boman, hydrophobic_moment, best_scores, worst_scores = genetic_algorithm.optimize()
 
     # Print initial sequence and its properties
     print("Mode Selected:", mode)
@@ -116,7 +118,7 @@ if __name__ == "__main__":
     print("Boman:", boman)
     print("Hydrophobic Moment:", hydrophobic_moment)
 
-    genetic_algorithm.plot_scores()
+    graph_visualization.plot_scores(best_scores, worst_scores)
 
     # Generate radar chart comparing initial targets and final values
     final_values = [molecular_weight, isoelectric_point, hydrophobicity, charge, aliphatic_index,
@@ -124,4 +126,4 @@ if __name__ == "__main__":
     target_values = [target_molecular_weight, target_isoelectric_point, target_hydrophobicity, target_charge,
                      target_aliphatic_index, target_instability_index, target_boman, target_hydrophobic_moment]
 
-    genetic_algorithm.create_radar_chart(target_values, final_values)
+    graph_visualization.create_radar_chart(target_values, final_values)

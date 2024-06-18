@@ -64,7 +64,7 @@ def create_radar_chart(target_values, final_values):
               'Aliphatic\nIndex', 'Instability\nIndex', 'Boman', 'Hydrophobic\nMoment']
 
     # Normalize the data
-    max_values = [max(tv, fv) for tv, fv in zip(target_values, final_values)]
+    max_values = [max(abs(tv), abs(fv)) for tv, fv in zip(target_values, final_values)]
     normalized_target_values = [tv / mv for tv, mv in zip(target_values, max_values)]
     normalized_final_values = [fv / mv for fv, mv in zip(final_values, max_values)]
 

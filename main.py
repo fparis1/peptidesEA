@@ -5,6 +5,8 @@ from peptides import Peptide
 import graph_visualization
 from genetic_algorithm import GeneticAlgorithm
 
+def calculate_accuracy(final_value, target_value):
+    return round((min(abs(final_value), abs(target_value)) / max(abs(final_value), abs(target_value))) * 100, 2)
 
 def compute_properties(sequence_custom):
     # Function to compute properties of the peptide sequence
@@ -117,6 +119,17 @@ if __name__ == "__main__":
     print("Instability Index:", instability_index)
     print("Boman:", boman)
     print("Hydrophobic Moment:", hydrophobic_moment)
+
+    # Print the optimized peptide properties
+    print("\nPercentage of accuracy for each property:")
+    print("Molecular Weight:", calculate_accuracy(molecular_weight, target_molecular_weight), "%")
+    print("Isoelectric Point:", calculate_accuracy(isoelectric_point, target_isoelectric_point), "%")
+    print("Hydrophobicity:", calculate_accuracy(hydrophobicity, target_hydrophobicity), "%")
+    print("Charge:", calculate_accuracy(charge, target_charge), "%")
+    print("Aliphatic Index:", calculate_accuracy(aliphatic_index, target_aliphatic_index), "%")
+    print("Instability Index:", calculate_accuracy(instability_index, target_instability_index), "%")
+    print("Boman:", calculate_accuracy(boman, target_boman), "%")
+    print("Hydrophobic Moment:", calculate_accuracy(hydrophobic_moment, target_hydrophobic_moment), "%")
 
     graph_visualization.plot_scores(best_scores, worst_scores)
 
